@@ -1,2 +1,2 @@
-INSERT INTO users 
-VALUES('abc', 123456);
+\COPY Users FROM './init/data/Users.csv' WITH DELIMITER ',' NULL '' CSV 
+ 
