@@ -4,4 +4,21 @@ CREATE TABLE Users (
     hashed_password VARCHAR(255) NOT NULL, 
     firstname VARCHAR(255) NOT NULL, 
     lastname VARCHAR(255) NOT NULL
-); 
+);
+
+CREATE TABLE Quotes (
+    time TIMESTAMP NOT NULL,
+    symbol TEXT NOT NULL,
+    price_open DOUBLE PRECISION NULL,
+    price_high DOUBLE PRECISION NULL,
+    price_low DOUBLE PRECISION NULL,
+    price_close DOUBLE PRECISION NULL,
+
+    PRIMARY KEY (symbol, time)
+);
+
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+
+/* Create hypertable from Quotes table */ 
+SELECT create_hypertable('Quotes', 'time');
+
