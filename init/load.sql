@@ -1,0 +1,2 @@
+INSERT INTO users 
+VALUES('abc', 123456);

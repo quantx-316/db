@@ -1,0 +1,1 @@
+CREATE TABLE IF NOT EXISTS users(name character(20), value integer);
