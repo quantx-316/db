@@ -1,0 +1,2 @@
+- Create Result table 
+- Enforce only one competition entry per user 
