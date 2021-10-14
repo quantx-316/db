@@ -10,7 +10,7 @@ CREATE TABLE Users (
 
 CREATE TABLE Algorithm (
     id INT GENERATED ALWAYS AS IDENTITY, 
-    owner INT REFERENCES Users(id),
+    owner INT REFERENCES Users(id) ON DELETE CASCADE,
     title TEXT NOT NULL, 
     code TEXT NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT NOW(), 
@@ -20,6 +20,7 @@ CREATE TABLE Algorithm (
 
 CREATE TABLE Backtest (
     id INT GENERATED ALWAYS AS IDENTITY, 
+    owner INT REFERENCES Users(id) ON DELETE CASCADE,
     result TEXT, 
     code_snapshot TEXT NOT NULL, 
     test_start TIMESTAMP NOT NULL, 
@@ -32,7 +33,7 @@ CREATE TABLE Competition (
     id INT GENERATED ALWAYS AS IDENTITY, 
     title TEXT NOT NULL, 
     description TEXT NOT NULL, 
-    owner INT REFERENCES Users(id),
+    owner INT REFERENCES Users(id) ON DELETE SET NULL,
     created TIMESTAMP NOT NULL DEFAULT NOW(), 
     end_time TIMESTAMP NOT NULL, 
     test_start TIMESTAMP NOT NULL, 
@@ -41,14 +42,14 @@ CREATE TABLE Competition (
 );
 
 CREATE TABLE CompetitionEnrollment (
-    comp_id INT REFERENCES Competition(id),
-    uid INT REFERENCES Users(id),
+    comp_id INT REFERENCES Competition(id) ON DELETE CASCADE,
+    uid INT REFERENCES Users(id) ON DELETE CASCADE,
     PRIMARY KEY(uid, comp_id)
 );
 
 CREATE TABLE CompetitionEntry (
-    comp_id INT REFERENCES Competition(id),
-    backtest_id INT REFERENCES Backtest(id),
+    comp_id INT REFERENCES Competition(id) ON DELETE CASCADE,
+    backtest_id INT REFERENCES Backtest(id) ON DELETE CASCADE,
     submitted TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY(comp_id, backtest_id)
 );
@@ -61,7 +62,7 @@ CREATE TABLE Symbol (
 
 CREATE TABLE Quote (
     time TIMESTAMP NOT NULL, 
-    symbol TEXT REFERENCES Symbol(symbol),
+    symbol TEXT REFERENCES Symbol(symbol) ON DELETE CASCADE,
     price_open DOUBLE PRECISION NULL,
     price_high DOUBLE PRECISION NULL,
     price_low DOUBLE PRECISION NULL,
