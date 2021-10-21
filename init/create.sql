@@ -70,3 +70,70 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 
 /* Create hypertable from Quotes table */ 
 SELECT create_hypertable('Quote', 'time');
+
+/* Continuous aggregate views for different time intervals */
+CREATE MATERIALIZED VIEW Quote_5m 
+WITH (timescaledb.continuous) AS 
+SELECT time_bucket(INTERVAL '5 minutes', Quote.time) AS candle,
+       symbol,
+       first(price_open, Quote.time) AS price_open,
+       max(price_high) AS price_high,
+       min(price_low) AS price_low,
+       last(price_close, Quote.time) AS price_close
+FROM Quote 
+GROUP BY symbol, candle;
+
+CREATE MATERIALIZED VIEW Quote_15m 
+WITH (timescaledb.continuous) AS 
+SELECT time_bucket(INTERVAL '15 minutes', Quote.time) AS candle,
+       symbol,
+       first(price_open, Quote.time) AS price_open,
+       max(price_high) AS price_high,
+       min(price_low) AS price_low,
+       last(price_close, Quote.time) AS price_close
+FROM Quote 
+GROUP BY symbol, candle;
+
+CREATE MATERIALIZED VIEW Quote_30m 
+WITH (timescaledb.continuous) AS 
+SELECT time_bucket(INTERVAL '30 minutes', Quote.time) AS candle,
+       symbol,
+       first(price_open, Quote.time) AS price_open,
+       max(price_high) AS price_high,
+       min(price_low) AS price_low,
+       last(price_close, Quote.time) AS price_close
+FROM Quote 
+GROUP BY symbol, candle;
+
+CREATE MATERIALIZED VIEW Quote_1h 
+WITH (timescaledb.continuous) AS 
+SELECT time_bucket(INTERVAL '1 hour', Quote.time) AS candle,
+       symbol,
+       first(price_open, Quote.time) AS price_open,
+       max(price_high) AS price_high,
+       min(price_low) AS price_low,
+       last(price_close, Quote.time) AS price_close
+FROM Quote 
+GROUP BY symbol, candle;
+
+CREATE MATERIALIZED VIEW Quote_1d
+WITH (timescaledb.continuous) AS 
+SELECT time_bucket(INTERVAL '1 day', Quote.time) AS candle,
+       symbol,
+       first(price_open, Quote.time) AS price_open,
+       max(price_high) AS price_high,
+       min(price_low) AS price_low,
+       last(price_close, Quote.time) AS price_close
+FROM Quote 
+GROUP BY symbol, candle;
+
+CREATE MATERIALIZED VIEW Quote_1w
+WITH (timescaledb.continuous) AS 
+SELECT time_bucket(INTERVAL '1 week', Quote.time) AS candle,
+       symbol,
+       first(price_open, Quote.time) AS price_open,
+       max(price_high) AS price_high,
+       min(price_low) AS price_low,
+       last(price_close, Quote.time) AS price_close
+FROM Quote 
+GROUP BY symbol, candle;
