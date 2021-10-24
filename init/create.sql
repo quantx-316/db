@@ -1,5 +1,6 @@
 CREATE TABLE Users (
     id INT GENERATED ALWAYS AS IDENTITY, 
+    username TEXT UNIQUE NOT NULL, 
     email TEXT UNIQUE NOT NULL, 
     hashed_password TEXT NOT NULL,
     firstname VARCHAR(255), 
