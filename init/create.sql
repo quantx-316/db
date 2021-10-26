@@ -22,6 +22,7 @@ CREATE TABLE Algorithm (
 CREATE TABLE Backtest (
     id INT GENERATED ALWAYS AS IDENTITY, 
     owner INT REFERENCES Users(id) ON DELETE CASCADE,
+    algorithm INT REFERENCES Algorithm(id) ON DELETE SET NULL, 
     result TEXT, 
     code_snapshot TEXT NOT NULL, 
     test_start TIMESTAMP NOT NULL, 
