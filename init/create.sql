@@ -92,6 +92,17 @@ CREATE EXTENSION IF NOT EXISTS timescaledb;
 SELECT create_hypertable('Quote', 'time');
 
 /* Continuous aggregate views for different time intervals */
+CREATE MATERIALIZED VIEW Quote_1m 
+WITH (timescaledb.continuous) AS
+SELECT time_bucket(INTERVAL '1 minute', Quote.time) AS candle,
+       symbol,
+       first(price_open, Quote.time) AS price_open,
+       max(price_high) AS price_high,
+       min(price_low) AS price_low,
+       last(price_close, Quote.time) AS price_close
+FROM Quote 
+GROUP BY symbol, candle;
+
 CREATE MATERIALIZED VIEW Quote_5m 
 WITH (timescaledb.continuous) AS 
 SELECT time_bucket(INTERVAL '5 minutes', Quote.time) AS candle,
