@@ -21,9 +21,11 @@ CREATE TABLE Algorithm (
 
 CREATE TABLE Backtest (
     id INT GENERATED ALWAYS AS IDENTITY, 
+    algo INT REFERENCES Algorithm(id) ON DELETE CASCADE,
     owner INT REFERENCES Users(id) ON DELETE CASCADE,
     result TEXT, 
     code_snapshot TEXT NOT NULL, 
+    test_interval TEXT NOT NULL,
     test_start TIMESTAMP NOT NULL, 
     test_end TIMESTAMP NOT NULL, 
     created TIMESTAMP NOT NULL DEFAULT NOW(),
