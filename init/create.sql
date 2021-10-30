@@ -24,6 +24,7 @@ CREATE TABLE Backtest (
     algo INT REFERENCES Algorithm(id) ON DELETE CASCADE,
     owner INT REFERENCES Users(id) ON DELETE CASCADE,
     result TEXT, 
+    score INT, 
     code_snapshot TEXT NOT NULL, 
     test_interval TEXT NOT NULL,
     test_start TIMESTAMP NOT NULL, 
