@@ -30,6 +30,7 @@ CREATE TABLE Backtest (
     test_start TIMESTAMP NOT NULL, 
     test_end TIMESTAMP NOT NULL, 
     created TIMESTAMP NOT NULL DEFAULT NOW(),
+    public BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY(id)
 );
 
@@ -65,6 +66,7 @@ CREATE TABLE Symbol (
 );
 
 /* TRIGGERS */
+    /* EDITED_AT for Algorithm auto-update */
 CREATE OR REPLACE FUNCTION trigger_update_edited_at() 
 RETURNS TRIGGER AS $$ 
 BEGIN 
@@ -77,6 +79,14 @@ CREATE TRIGGER set_algo_edited_at
 BEFORE UPDATE ON Algorithm
 FOR EACH ROW 
 EXECUTE PROCEDURE trigger_update_edited_at();
+
+
+
+
+
+
+
+/* Quotes */
 
 CREATE TABLE Quote (
     time TIMESTAMP NOT NULL, 
