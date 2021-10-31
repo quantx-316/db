@@ -16,6 +16,7 @@ CREATE TABLE Algorithm (
     code TEXT NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT NOW(), 
     edited_at TIMESTAMP NOT NULL DEFAULT NOW(), 
+    public BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY(id)
 );
 
@@ -30,7 +31,6 @@ CREATE TABLE Backtest (
     test_start TIMESTAMP NOT NULL, 
     test_end TIMESTAMP NOT NULL, 
     created TIMESTAMP NOT NULL DEFAULT NOW(),
-    public BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY(id)
 );
 
