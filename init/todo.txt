@@ -1,2 +1,3 @@
 - Create Result table  [Note: what is this? Backtest results will just be written to the corresponding Backtest table entry]
 - Enforce only one competition entry per user 
+- incorporate ingest into initdata.sh workflow (need to figure out how we are defining the symbols to put in the table)
