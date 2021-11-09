@@ -16,9 +16,6 @@ CREATE TABLE Algorithm (
     code TEXT NOT NULL,
     created TIMESTAMP NOT NULL DEFAULT NOW(), 
     edited_at TIMESTAMP NOT NULL DEFAULT NOW(), 
-    test_start_default TIMESTAMP NOT NULL,
-    test_end_default TIMESTAMP NOT NULL,
-    test_interval_default TEXT NOT NULL,
     public BOOLEAN NOT NULL DEFAULT FALSE,
     PRIMARY KEY(id)
 );
