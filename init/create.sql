@@ -85,6 +85,16 @@ CREATE TABLE Symbol (
     description TEXT
 );
 
+/* INDICES */
+CREATE INDEX idx_algo_edited ON Algorithm(edited_at);
+
+CREATE INDEX idx_algo_created ON Algorithm(created);
+
+CREATE INDEX idx_backtest_score ON Backtest(score);
+CREATE INDEX idx_backtest_test_start ON Backtest(test_start);
+CREATE INDEX idx_backtest_test_end ON Backtest(test_end);
+CREATE INDEX idx_backtest_created ON Backtest(created);
+
 /* TRIGGERS */
     /* EDITED_AT for Algorithm auto-update */
 CREATE OR REPLACE FUNCTION trigger_update_edited_at() 
