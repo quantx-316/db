@@ -58,7 +58,7 @@ CREATE TABLE Competition (
     id INT GENERATED ALWAYS AS IDENTITY, 
     title TEXT NOT NULL, 
     description TEXT NOT NULL, 
-    owner INT REFERENCES Users(id) ON DELETE SET NULL,
+    owner TEXT REFERENCES Users(username) ON DELETE SET NULL, 
     created TIMESTAMP NOT NULL DEFAULT NOW(), 
     edited_at TIMESTAMP NOT NULL DEFAULT NOW(),    
     end_time TIMESTAMP NOT NULL, 
@@ -76,7 +76,7 @@ CREATE TABLE Competition (
         -- This was considered unnecessary as it makes queries more complex and requires joining when functionally it does the same thing as here 
 CREATE TABLE CompetitionEntry (
     comp_id INT REFERENCES Competition(id) ON DELETE CASCADE,
-    uid INT references Users(id) ON DELETE CASCADE, 
+    owner TEXT references Users(username) ON DELETE CASCADE, 
     
     backtest_id INT REFERENCES Backtest(id) ON DELETE SET NULL,
     backtest_algo INT REFERENCES Algorithm(id) ON DELETE SET NULL, 
@@ -89,7 +89,7 @@ CREATE TABLE CompetitionEntry (
     test_end TIMESTAMP NOT NULL, 
 
     submitted TIMESTAMP NOT NULL DEFAULT NOW(),
-    PRIMARY KEY(comp_id, uid)
+    PRIMARY KEY(comp_id, username)
 );
 
 CREATE TABLE Symbol (
@@ -125,7 +125,7 @@ CREATE INDEX idx_comp_end_time ON Competition(end_time);
 CREATE INDEX idx_comp_test_start ON Competition(test_start);
 CREATE INDEX idx_comp_test_end ON Competition(test_end);
 
-CREATE INDEX idx_comp_entry_user ON CompetitionEntry(uid); 
+CREATE INDEX idx_comp_entry_user ON CompetitionEntry(owner); 
 CREATE INDEX idx_comp_entry_comp ON CompetitionEntry(comp_id);
 CREATE INDEX idx_comp_entry_backtest ON CompetitionEntry(backtest_id);
 CREATE INDEX idx_comp_entry_algo ON CompetitionEntry(backtest_algo);
