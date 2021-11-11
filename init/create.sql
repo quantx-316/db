@@ -102,6 +102,7 @@ CREATE TABLE Symbol (
     -- Primary consideration was foreign keys, sortable numeric ranges (ie date times, scores, ...)
     -- Text values are avoided as indices as these will be hard to index given our application requirements (ie code)
         -- Many are used in %% search queries too, so hard for DBMS to use indexing 
+    -- Naturally primary keys that are auto-indexed were avoided 
 CREATE INDEX idx_algo_user ON Algorithm(owner);
 CREATE INDEX idx_algo_edited ON Algorithm(edited_at);
 CREATE INDEX idx_algo_created ON Algorithm(created);
