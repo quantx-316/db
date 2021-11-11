@@ -60,24 +60,26 @@ CREATE TABLE Competition (
     description TEXT NOT NULL, 
     owner INT REFERENCES Users(id) ON DELETE SET NULL,
     created TIMESTAMP NOT NULL DEFAULT NOW(), 
+    edited_at TIMESTAMP NOT NULL DEFAULT NOW(),    
     end_time TIMESTAMP NOT NULL, 
     test_start TIMESTAMP NOT NULL, 
     test_end TIMESTAMP NOT NULL,
     PRIMARY KEY(id)
 );
 
-CREATE TABLE CompetitionEnrollment (
-    comp_id INT REFERENCES Competition(id) ON DELETE CASCADE,
-    uid INT REFERENCES Users(id) ON DELETE CASCADE,
-    PRIMARY KEY(uid, comp_id)
-);
-
 CREATE TABLE CompetitionEntry (
     comp_id INT REFERENCES Competition(id) ON DELETE CASCADE,
     backtest_id INT REFERENCES Backtest(id) ON DELETE CASCADE,
+    uid INT references Users(id) ON DELETE CASCADE, /* redundant through backtest_id --> Backtest --> owner, but helps speed up many queries dealing with it */
     submitted TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY(comp_id, backtest_id)
 );
+
+-- Might be premature optimization
+    -- Could lazily load best performing backtests for users with dropdown
+-- CREATE TABLE BestCompetitionEntry (
+--     comp_id INT REFERENCES Competition(id) ON DELETE CASCADE, 
+-- );
 
 CREATE TABLE Symbol (
     symbol TEXT NOT NULL PRIMARY KEY, 
@@ -87,13 +89,22 @@ CREATE TABLE Symbol (
 
 /* INDICES */
 CREATE INDEX idx_algo_edited ON Algorithm(edited_at);
-
 CREATE INDEX idx_algo_created ON Algorithm(created);
 
 CREATE INDEX idx_backtest_score ON Backtest(score);
 CREATE INDEX idx_backtest_test_start ON Backtest(test_start);
 CREATE INDEX idx_backtest_test_end ON Backtest(test_end);
 CREATE INDEX idx_backtest_created ON Backtest(created);
+
+CREATE INDEX idx_comp_created ON Competition(created);
+CREATE INDEX idx_comp_edited ON Competition(edited_at);
+CREATE INDEX idx_comp_end_time ON Competition(end_time);
+CREATE INDEX idx_comp_test_start ON Competition(test_start);
+CREATE INDEX idx_comp_test_end ON Competition(test_end);
+
+/* Efficiently search for user, many queries deal with user // also competition to get backtests */
+CREATE INDEX idx_comp_entry_user ON CompetitionEntry(uid); 
+CREATE INDEX idx_comp_entry_comp ON CompetitionEntry(comp_id);
 
 /* TRIGGERS */
     /* EDITED_AT for Algorithm auto-update */
@@ -105,11 +116,15 @@ BEGIN
 END; 
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER set_algo_edited_at 
+CREATE TRIGGER set_algo_edited_at
 BEFORE UPDATE ON Algorithm
 FOR EACH ROW 
 EXECUTE PROCEDURE trigger_update_edited_at();
 
+CREATE TRIGGER set_comp_edited_at 
+BEFORE UPDATE ON Competition 
+FOR EACH ROW 
+EXECUTE PROCEDURE trigger_update_edited_at();
 
 /* Read comments in below similar trigger function for userback table */
 CREATE OR REPLACE FUNCTION trigger_algoback_change()
