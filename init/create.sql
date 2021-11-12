@@ -58,25 +58,38 @@ CREATE TABLE Competition (
     id INT GENERATED ALWAYS AS IDENTITY, 
     title TEXT NOT NULL, 
     description TEXT NOT NULL, 
-    owner INT REFERENCES Users(id) ON DELETE SET NULL,
+    owner TEXT REFERENCES Users(username) ON DELETE SET NULL, 
     created TIMESTAMP NOT NULL DEFAULT NOW(), 
+    edited_at TIMESTAMP NOT NULL DEFAULT NOW(),    
     end_time TIMESTAMP NOT NULL, 
     test_start TIMESTAMP NOT NULL, 
     test_end TIMESTAMP NOT NULL,
     PRIMARY KEY(id)
 );
 
-CREATE TABLE CompetitionEnrollment (
-    comp_id INT REFERENCES Competition(id) ON DELETE CASCADE,
-    uid INT REFERENCES Users(id) ON DELETE CASCADE,
-    PRIMARY KEY(uid, comp_id)
-);
-
+-- An entry is a SNAPSHOT that makes the results public, it is non-retractable unless a user submits within the competition timeframe another valid backtest
+    -- This is why algo, id will be set to null on delete, the entry itself is considered 'distinct' in a sense 
+    -- One alternative that comes to mind is to have the application create a new Backtest entry and associate it with CompetitionEntry, however:
+        -- a backtest entry needs an owner and the application logic associates algorithms with backtests, allows users to delete them, ...
+            -- therefore it would not fit the requirements here 
+    -- An alternative design is to create a CompetitionSnapshot table and have the CompetitionEntry reference it 
+        -- This was considered unnecessary as it makes queries more complex and requires joining when functionally it does the same thing as here 
 CREATE TABLE CompetitionEntry (
     comp_id INT REFERENCES Competition(id) ON DELETE CASCADE,
-    backtest_id INT REFERENCES Backtest(id) ON DELETE CASCADE,
+    owner TEXT references Users(username) ON DELETE CASCADE, 
+    
+    backtest_id INT REFERENCES Backtest(id) ON DELETE SET NULL,
+    backtest_algo INT REFERENCES Algorithm(id) ON DELETE SET NULL, 
+
+    result TEXT NOT NULL, 
+    score INT NOT NULL, 
+    code_snapshot TEXT NOT NULL, 
+    test_interval TEXT NOT NULL, 
+    test_start TIMESTAMP NOT NULL, 
+    test_end TIMESTAMP NOT NULL, 
+
     submitted TIMESTAMP NOT NULL DEFAULT NOW(),
-    PRIMARY KEY(comp_id, backtest_id)
+    PRIMARY KEY(comp_id, owner)
 );
 
 CREATE TABLE Symbol (
@@ -86,14 +99,40 @@ CREATE TABLE Symbol (
 );
 
 /* INDICES */
+    -- Primary consideration was foreign keys, sortable numeric ranges (ie date times, scores, ...)
+    -- Text values are avoided as indices as these will be hard to index given our application requirements (ie code)
+        -- Many are used in %% search queries too, so hard for DBMS to use indexing 
+    -- Naturally primary keys that are auto-indexed were avoided 
+CREATE INDEX idx_algo_user ON Algorithm(owner);
 CREATE INDEX idx_algo_edited ON Algorithm(edited_at);
-
 CREATE INDEX idx_algo_created ON Algorithm(created);
 
+CREATE INDEX idx_backtest_algo ON Backtest(algo);
+CREATE INDEX idx_backtest_owner ON Backtest(owner);
 CREATE INDEX idx_backtest_score ON Backtest(score);
 CREATE INDEX idx_backtest_test_start ON Backtest(test_start);
 CREATE INDEX idx_backtest_test_end ON Backtest(test_end);
 CREATE INDEX idx_backtest_created ON Backtest(created);
+
+CREATE INDEX idx_algo_backtest_backtest_id ON BestAlgoBacktest(backtest_id);
+
+CREATE INDEX idx_user_backtest_backtest_id ON BestUserBacktest(backtest_id);
+
+CREATE INDEX idx_comp_owner ON Competition(owner);
+CREATE INDEX idx_comp_created ON Competition(created);
+CREATE INDEX idx_comp_edited ON Competition(edited_at);
+CREATE INDEX idx_comp_end_time ON Competition(end_time);
+CREATE INDEX idx_comp_test_start ON Competition(test_start);
+CREATE INDEX idx_comp_test_end ON Competition(test_end);
+
+CREATE INDEX idx_comp_entry_user ON CompetitionEntry(owner); 
+CREATE INDEX idx_comp_entry_comp ON CompetitionEntry(comp_id);
+CREATE INDEX idx_comp_entry_backtest ON CompetitionEntry(backtest_id);
+CREATE INDEX idx_comp_entry_algo ON CompetitionEntry(backtest_algo);
+CREATE INDEX idx_comp_entry_score ON CompetitionEntry(score);
+CREATE INDEX idx_comp_entry_test_start ON CompetitionEntry(test_start);
+CREATE INDEX idx_comp_entry_test_end ON CompetitionEntry(test_end);
+CREATE INDEX idx_comp_entry_submitted ON CompetitionEntry(submitted);
 
 /* TRIGGERS */
     /* EDITED_AT for Algorithm auto-update */
@@ -105,11 +144,15 @@ BEGIN
 END; 
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER set_algo_edited_at 
+CREATE TRIGGER set_algo_edited_at
 BEFORE UPDATE ON Algorithm
 FOR EACH ROW 
 EXECUTE PROCEDURE trigger_update_edited_at();
 
+CREATE TRIGGER set_comp_edited_at 
+BEFORE UPDATE ON Competition 
+FOR EACH ROW 
+EXECUTE PROCEDURE trigger_update_edited_at();
 
 /* Read comments in below similar trigger function for userback table */
 CREATE OR REPLACE FUNCTION trigger_algoback_change()
