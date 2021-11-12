@@ -82,14 +82,14 @@ CREATE TABLE CompetitionEntry (
     backtest_algo INT REFERENCES Algorithm(id) ON DELETE SET NULL, 
 
     result TEXT NOT NULL, 
-    score INT NOT NULL CONSTRAINT valid_score (score >= 0), 
+    score INT NOT NULL, 
     code_snapshot TEXT NOT NULL, 
     test_interval TEXT NOT NULL, 
     test_start TIMESTAMP NOT NULL, 
     test_end TIMESTAMP NOT NULL, 
 
     submitted TIMESTAMP NOT NULL DEFAULT NOW(),
-    PRIMARY KEY(comp_id, username)
+    PRIMARY KEY(comp_id, owner)
 );
 
 CREATE TABLE Symbol (
