@@ -88,7 +88,7 @@ CREATE TABLE CompetitionEntry (
     test_start TIMESTAMP NOT NULL, 
     test_end TIMESTAMP NOT NULL, 
 
-    submitted TIMESTAMP NOT NULL DEFAULT NOW(),
+    created TIMESTAMP NOT NULL DEFAULT NOW(),
     PRIMARY KEY(comp_id, owner)
 );
 
@@ -132,7 +132,7 @@ CREATE INDEX idx_comp_entry_algo ON CompetitionEntry(backtest_algo);
 CREATE INDEX idx_comp_entry_score ON CompetitionEntry(score);
 CREATE INDEX idx_comp_entry_test_start ON CompetitionEntry(test_start);
 CREATE INDEX idx_comp_entry_test_end ON CompetitionEntry(test_end);
-CREATE INDEX idx_comp_entry_submitted ON CompetitionEntry(submitted);
+CREATE INDEX idx_comp_entry_created ON CompetitionEntry(created);
 
 /* TRIGGERS */
     /* EDITED_AT for Algorithm auto-update */
