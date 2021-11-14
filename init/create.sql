@@ -94,8 +94,7 @@ CREATE TABLE CompetitionEntry (
 
 CREATE TABLE Symbol (
     symbol TEXT NOT NULL PRIMARY KEY, 
-    name TEXT NOT NULL,
-    description TEXT
+    searchableSymbol TEXT NOT NULL
 );
 
 /* INDICES */
